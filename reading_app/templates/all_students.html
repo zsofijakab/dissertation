@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body{
+                font-size: 1rem;
+                font-family: Arial, sans-serif;
+            }
+            
+            .story-container {
+      white-space: pre-wrap; /* Preserves newlines */
+      font-size: 1rem;     /* Increases font size */
+      line-height: 1.6;      /* Adjusts line spacing for readability */
+      word-wrap: break-word; /* Ensures long words break to fit */
+      max-width: 90%;        /* Optional: Limits the container width */
+      margin: 20px auto;     /* Centers the text on the page and adds top/bottom margin */
+      font-family: Arial, sans-serif; /* Sets a clean font */
+      padding: 10px;         /* Adds some padding inside the container */
+            }
+        </style>
+    </head>
+<body>
+
+  <h1>Student View: Set Your Interest</h1>
+    <form method="post" action="{% url 'students' %}">
+        {% csrf_token %}
+        <label for="interest">Enter your interest:</label><br>
+        <input type="text" id="interest" name="interest" value="{{ interest }}" required><br><br>
+        <button type="submit">Generate Story</button>
+    </form>
+
+    <h1>Story and Questions</h1>
+
+    {% if story %}
+    <h2>Story</h2>
+    <pre>
+    <div class="story-container">{{ story }}</div>
+    </pre>
+    {% endif %}
+
+    {% if questions %}
+    <h2>Questions</h2>
+    <form method="POST" action ="{% url 'evaluate_answers' %}">
+        {% csrf_token %}
+        <input type="hidden" name="story" value="{{ story }}">
+        {% for question in questions %}
+        <div class="question-answer">
+            <div class="question">{{ question }}</div>
+            <input
+                type="text"
+                name="answers_{{ forloop.counter }}"
+                class="answer-box"
+                placeholder="Type your answer here"
+            />
+            <input type="hidden" name="questions_{{ forloop.counter }}" value="{{ question }}">
+        </div>
+        {% endfor %}
+        <button type="submit">Submit Answers</button>
+    </form>
+    {% else %}
+    <p>No questions available.</p>
+    {% endif %}
+  
+    <br>
+    <a href="/">Teacher page</a>
+
+</body>
+</html>

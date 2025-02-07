@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Reading tool teacher view</h1>
+<form method="post">
+  {% csrf_token %}
+  <label for="variable">Enter the story topic:</label><br>
+  <input type="text" id="variable" name="variable" value="{{ variable }}" required><br><br>
+  <button type="submit">Update Topic</button>
+</form>
+
+  <a href="/students/">Student page</a>
+</body>
+</html>

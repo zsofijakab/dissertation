@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <h1>Evaluation Results</h1>
+
+        <h2>Story</h2>
+        <p>{{ story }}</p>
+    
+        <h2>Evaluation</h2>
+        {% for qa in questions_and_answers %}
+        <div class="result">
+            <strong>Question:</strong> {{ qa.question }}<br>
+            <strong>Your Answer:</strong> {{ qa.answer }}
+        </div>
+        {% endfor %}
+    
+        <h2>Overall Feedback</h2>
+        <pre>{{ evaluation }}</pre>
+        <br>
+        <a href="/students/">Student page</a>
+        <br>
+        <a href="/">Teacher page</a>
+
+    </body>
+
+</html>
