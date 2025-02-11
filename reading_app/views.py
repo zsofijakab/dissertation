@@ -5,16 +5,22 @@ from .models import Student
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.urls import resolve
 import anthropic
+import os
 
 shared_context = {
     "variable": "",
     "interest": "",
 }
 
-# Initialize Anthropic client
-with open('claude_api_key.txt', 'r') as file:
-    api_key = file.read().strip()
+# Get the API key from environment variables
+api_key = os.getenv('CLAUDE_API_KEY')
+
+# Ensure the key exists
+if not api_key:
+    raise ValueError("CLAUDE_API_KEY environment variable is not set.")
+
 client = anthropic.Anthropic(api_key=api_key)
+
 
 def main(request):
     global shared_context
