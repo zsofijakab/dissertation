@@ -103,19 +103,23 @@ def evaluate_answers(request):
         # Prepare the prompt for the Anthropic API
         system_prompt = (
             "You are an AI assistant responsible for evaluating the correctness of student answers. "
-            "Use the provided story as the reference to evaluate each answer. Respond with either 'Correct' or "
-            "'Incorrect'. If it is incorrect, help the student find where in the story (which paragraph or sentence)"
-            "they would find the correct answer. Do not give away why the answer is incorrect and what the correct answer is,"
-            "simply suggest to the reader where in the story to check again."
-            "Respond matching the following format: <Question number> <\"Correct\" or \"Incorrect\"> - <Hint>"
-            "For example like this: 1. \"Correct\" - The first paragraph clearly states that Zoom \"had a dream that was even bigger than winning Earth's championships - he wanted to race through space!"
+            "Use the provided story as the reference to evaluate each answer. Respond with either 'Correct' or 'Incorrect'. "
+            "If the answer is incorrect, provide a progressively more specific hint based on previous hints. "
+            "The first hint should guide the student to a paragraph or section. If they resubmit and it's still incorrect, "
+            "give a more specific hint pointing to a sentence. On further incorrect attempts, get even more precise while still "
+            "not giving away the correct answer."
+            "Format your response like this: <Question number> <\"Correct\" or \"Incorrect\"> - <Hint> "
+            "Example: "
+            "1. \"Correct\" - The first paragraph clearly states that Zoom \"had a dream that was even bigger than winning Earth's championships - he wanted to race through space!\" "
             "2. \"Incorrect\" - Please review paragraph 3 of the story, which explains how Zoom's car was prepared for space travel."
         )
 
         user_prompt = f"The story is:\n{story}\n\nEvaluate the following questions and answers:\n\n"
         for qa in questions_and_answers:
+            previous_hint = request.POST.get(f"hint", "").strip()
+            if previous_hint:
+                user_prompt += f"Previous hint for this question: {previous_hint}\n"
             user_prompt += f"Question: {qa['question']}\nAnswer: {qa['answer']}\n\n"
-
         # Call the Anthropic API
         response = client.messages.create(
             model="claude-3-5-sonnet-20241022",  # Use a valid Claude model
