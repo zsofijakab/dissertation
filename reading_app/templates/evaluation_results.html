@@ -50,6 +50,7 @@
                 <div class="question"><strong>Resubmit Answer:</strong> {{ qa.question }}</div>
                 <input type="text" name="answers_{{ forloop.counter }}" class="answer-box" placeholder="Try again">
                 <input type="hidden" name="questions_{{ forloop.counter }}" value="{{ qa.question }}">
+                <input type="hidden" name="hint" value="{{ qa.hint }}">
             </div>
             {% endif %}
             {% endfor %}
