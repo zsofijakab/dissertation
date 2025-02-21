@@ -12,12 +12,12 @@ shared_context = {
     "interest": "",
 }
 
-# Get the API key from environment variables
-api_key = os.getenv('CLAUDE_API_KEY')
-
-# Ensure the key exists
-if not api_key:
-    raise ValueError("CLAUDE_API_KEY environment variable is not set.")
+# Initialize Anthropic client
+try:
+    with open('claude_api_key.txt', 'r') as file:
+        api_key = file.read().strip()
+except:
+    api_key = os.getenv('CLAUDE_API_KEY')
 
 client = anthropic.Anthropic(api_key=api_key)
 
@@ -107,6 +107,9 @@ def evaluate_answers(request):
             "'Incorrect'. If it is incorrect, help the student find where in the story (which paragraph or sentence)"
             "they would find the correct answer. Do not give away why the answer is incorrect and what the correct answer is,"
             "simply suggest to the reader where in the story to check again."
+            "Respond matching the following format: <Question number> <\"Correct\" or \"Incorrect\"> - <Hint>"
+            "For example like this: 1. \"Correct\" - The first paragraph clearly states that Zoom \"had a dream that was even bigger than winning Earth's championships - he wanted to race through space!"
+            "2. \"Incorrect\" - Please review paragraph 3 of the story, which explains how Zoom's car was prepared for space travel."
         )
 
         user_prompt = f"The story is:\n{story}\n\nEvaluate the following questions and answers:\n\n"
@@ -127,16 +130,27 @@ def evaluate_answers(request):
         # Parse the API response
         evaluation = response.content[0].text.strip()
 
-        print(response)
+        print(evaluation)
 
-        # Render the results to a new template
+          # Parse evaluation results dynamically
+        evaluation_lines = [line.strip() for line in evaluation.split("\n") if line.strip()]
+        for i, line in enumerate(evaluation_lines):
+            if i < len(questions_and_answers):  # Ensure we don't go out of bounds
+                parts = line.split(" - ", 1)  # Splits into ["1. Incorrect", "Hint"]
+                print(parts)
+                if len(parts) == 2:
+                    correctness_part, hint = parts
+                    is_correct = "Correct" in correctness_part
+                    questions_and_answers[i]["is_correct"] = is_correct
+                    questions_and_answers[i]["hint"] = hint.strip()
+
+        # Render results
         return render(
             request,
             "evaluation_results.html",
             {
                 "story": story,
                 "questions_and_answers": questions_and_answers,
-                "evaluation": evaluation,
             },
         )
 

@@ -31,12 +31,30 @@
         {% for qa in questions_and_answers %}
         <div class="result">
             <strong>Question:</strong> {{ qa.question }}<br>
-            <strong>Your Answer:</strong> {{ qa.answer }}
+            <strong>Your Answer:</strong> {{ qa.answer }}<br>
+
+            {% if qa.is_correct %}
+            <p style="color:green;">✅ Correct</p>
+            {% else %}
+            <p style="color:red;">❌ Incorrect</p>
+            <p class="hint"><strong>Hint:</strong> {{ qa.hint }}</p>
+            {% endif %}
         </div>
         {% endfor %}
-    
-        <h2>Overall Feedback</h2>
-        <pre>{{ evaluation }}</pre>
+        <form method="POST" action="{% url 'evaluate_answers' %}">
+            {% csrf_token %}
+            <input type="hidden" name="story" value="{{ story }}">
+            {% for qa in questions_and_answers %}
+            {% if not qa.is_correct %}
+            <div class="question-answer">
+                <div class="question"><strong>Resubmit Answer:</strong> {{ qa.question }}</div>
+                <input type="text" name="answers_{{ forloop.counter }}" class="answer-box" placeholder="Try again">
+                <input type="hidden" name="questions_{{ forloop.counter }}" value="{{ qa.question }}">
+            </div>
+            {% endif %}
+            {% endfor %}
+            <button type="submit">Resubmit Answers</button>
+        </form>
         <br>
         <a href="/students/">Student page</a>
         <br>
